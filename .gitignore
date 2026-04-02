@@ -1,0 +1,54 @@
+# =========================
+# Python basics
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+
+# Data (IMPORTANT)
+data/
+*.csv
+*.tsv
+*.json
+*.wav
+*.mp3
+*.flac
+
+# Model artifacts
+*.pt
+*.pth
+*.h5
+*.ckpt
+*.onnx
+checkpoints/
+models/
+runs/
+logs/
+
+# Temporary / outputs
+*.log
+*.tmp
+*.out
+outputs/
+results/
+
+# IDEs
+.idea/
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Misc
+*.swp
