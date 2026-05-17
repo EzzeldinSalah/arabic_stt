@@ -7,6 +7,7 @@ const transcribeBtn = document.getElementById("transcribe-btn");
 const statusEl = document.getElementById("status");
 const outputEl = document.getElementById("output");
 const scrollBtn = document.getElementById("scroll-cta");
+const audioPreview = document.getElementById("audio-preview");
 
 const fmt = (value) =>
     value === null || value === undefined ? "N/A" : value.toFixed(4);
@@ -43,16 +44,24 @@ async function loadMetrics() {
 
         metricsMeta.textContent = `${samplesLine} | Limit: ${limit} | Generated: ${generated}`;
 
+        const calcAcc = (wer) => {
+            if (wer === null || wer === undefined) return "N/A";
+            const acc = Math.max(0, 100 - (wer * 100));
+            return acc.toFixed(2) + "%";
+        };
+
         metricsTable.innerHTML = `
       <tr>
         <td>Whisper (${whisper.model || ""})</td>
         <td>${fmt(whisper.wer)}</td>
         <td>${fmt(whisper.cer)}</td>
+        <td>${calcAcc(whisper.wer)}</td>
       </tr>
       <tr>
         <td>CNN-LSTM</td>
         <td>${fmt(cnn.wer)}</td>
         <td>${fmt(cnn.cer)}</td>
+        <td>${calcAcc(cnn.wer)}</td>
       </tr>
     `;
 
@@ -107,6 +116,20 @@ if (scrollBtn) {
         const section = document.getElementById("demo");
         if (section) {
             section.scrollIntoView({ behavior: "smooth" });
+        }
+    });
+}
+
+if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const url = URL.createObjectURL(file);
+            audioPreview.src = url;
+            audioPreview.style.display = "block";
+        } else {
+            audioPreview.style.display = "none";
+            audioPreview.src = "";
         }
     });
 }

@@ -14,7 +14,7 @@ import sys
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.append(str(BASE_DIR.parent))
 
-from cnn_lstm.model import CNNLSTM
+from cnn_lstm.model import CNNLSTM, LegacyASRModel
 from cnn_lstm.utils import CharacterEncoder, greedy_decoder
 try:
     import miniaudio
@@ -29,7 +29,7 @@ except ImportError:
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 RESULTS_PATH = BASE_DIR.parent / "results" / "metrics.json"
-MODEL_NAME = os.getenv("WHISPER_MODEL", "medium")
+MODEL_NAME = os.getenv("WHISPER_MODEL", "small")
 DEVICE = os.getenv("WHISPER_DEVICE")
 if not DEVICE:
     if torch.cuda.is_available():
@@ -55,9 +55,15 @@ def _get_cnn_model():
     if _cnn_model is None:
         _char_encoder = CharacterEncoder()
         model_path = BASE_DIR.parent / "saved_models" / "asr_model.pth"
-        _cnn_model = CNNLSTM(input_dim=80, num_classes=_char_encoder.vocab_size).to(DEVICE)
         if model_path.exists():
-            _cnn_model.load_state_dict(torch.load(model_path, map_location=DEVICE))
+            state_dict = torch.load(model_path, map_location=DEVICE)
+            if "cnn.0.bias" in state_dict:
+                _cnn_model = LegacyASRModel(input_dim=80, num_classes=_char_encoder.vocab_size).to(DEVICE)
+            else:
+                _cnn_model = CNNLSTM(input_dim=80, num_classes=_char_encoder.vocab_size).to(DEVICE)
+            _cnn_model.load_state_dict(state_dict)
+        else:
+            _cnn_model = CNNLSTM(input_dim=80, num_classes=_char_encoder.vocab_size).to(DEVICE)
         _cnn_model.eval()
         _mel_transform = torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_mels=80)
         _db_transform = torchaudio.transforms.AmplitudeToDB(stype="power")

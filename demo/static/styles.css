@@ -1,14 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Cairo:wght@400;600;700&display=swap");
 
 :root {
-    --bg: #f5f7fb;
-    --ink: #101827;
-    --muted: #5f6b7a;
-    --accent: #14b8a6;
-    --accent-2: #3b82f6;
-    --card: #ffffff;
-    --border: rgba(16, 24, 39, 0.08);
-    --shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+    --bg: #0a0a0a;
+    --ink: #ffb000;
+    --ink-muted: rgba(255, 176, 0, 0.7);
+    --border: #ffb000;
+    --card: #111111;
+    --hover: #221800;
 }
 
 * {
@@ -17,61 +15,42 @@
 
 body {
     margin: 0;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Fira Code", "Cairo", monospace, sans-serif;
     color: var(--ink);
-    background: linear-gradient(160deg, #f5f7fb 0%, #eef5ff 40%, #f8fafc 100%);
+    background: var(--bg);
     min-height: 100vh;
+    font-size: 18px;
+    line-height: 1.6;
 }
 
-.bg-orb {
+/* Scanline effect */
+body::after {
+    content: " ";
+    display: block;
     position: fixed;
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
-    z-index: 0;
-}
-
-.orb-1 {
-    background: rgba(20, 184, 166, 0.35);
-    top: -120px;
-    left: -120px;
-}
-
-.orb-2 {
-    background: rgba(59, 130, 246, 0.28);
-    bottom: -160px;
-    right: -160px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
 }
 
 .page {
     position: relative;
     z-index: 1;
-    max-width: 1100px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px 72px;
 }
 
-.nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 36px;
-}
-
-.brand {
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-
-.chip {
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    background: rgba(20, 184, 166, 0.12);
-    color: var(--accent);
+h1, h2, h3 {
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-top: 0;
 }
 
 .hero {
@@ -79,17 +58,19 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 28px;
     align-items: center;
+    margin-bottom: 40px;
 }
 
 .hero-copy h1 {
-    font-size: clamp(2.4rem, 4vw, 3.2rem);
+    font-size: 2rem;
     margin: 0 0 12px;
+    border-bottom: 2px solid var(--border);
+    display: inline-block;
+    padding-bottom: 5px;
 }
 
 .subtitle {
-    color: var(--muted);
-    font-size: 1rem;
-    line-height: 1.6;
+    color: var(--ink-muted);
     margin-bottom: 18px;
 }
 
@@ -100,45 +81,51 @@ body {
     align-items: center;
 }
 
+button {
+    font-family: "Fira Code", monospace;
+}
+
 .primary {
-    background: linear-gradient(120deg, var(--accent), var(--accent-2));
-    color: #ffffff;
-    border: none;
-    padding: 12px 22px;
-    border-radius: 14px;
+    background: var(--ink);
+    color: var(--bg);
+    border: 2px solid var(--ink);
+    padding: 10px 20px;
     font-weight: 600;
+    text-transform: uppercase;
     cursor: pointer;
-    box-shadow: 0 16px 32px rgba(20, 184, 166, 0.25);
+    transition: all 0.1s ease;
+}
+
+.primary:hover {
+    background: var(--bg);
+    color: var(--ink);
 }
 
 .primary:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .badge {
-    color: var(--muted);
-    font-size: 0.9rem;
+    color: var(--ink-muted);
+    border: 1px dashed var(--ink-muted);
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
 }
 
 .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 20px 22px;
-    box-shadow: var(--shadow);
-}
-
-.metrics h2,
-.upload h2,
-.output h2 {
-    margin-top: 0;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .meta {
-    color: var(--muted);
-    font-size: 0.9rem;
+    color: var(--ink-muted);
+    font-size: 0.85rem;
     margin-bottom: 12px;
+    text-transform: uppercase;
 }
 
 .table-wrap {
@@ -148,29 +135,26 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.95rem;
 }
 
-th,
-td {
+th, td {
     text-align: left;
-    padding: 8px 6px;
-    border-bottom: 1px solid rgba(16, 24, 39, 0.08);
+    padding: 10px;
+    border-bottom: 1px solid var(--ink-muted);
 }
 
 th {
-    color: var(--muted);
-    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
 }
 
 .compare {
     margin-top: 12px;
-    color: var(--muted);
-    font-size: 0.9rem;
+    color: var(--ink-muted);
+    font-size: 0.85rem;
 }
 
 .demo {
-    margin-top: 36px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 20px;
@@ -178,43 +162,68 @@ th {
 
 .upload input[type="file"] {
     margin: 10px 0 16px;
+    display: block;
+    width: 100%;
+    border: 1px dashed var(--ink);
+    padding: 10px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Fira Code", monospace;
+    cursor: pointer;
+}
+
+.upload input[type="file"]::file-selector-button {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 5px 10px;
+    font-family: inherit;
+    cursor: pointer;
+    margin-right: 10px;
 }
 
 .status {
-    margin-top: 10px;
-    color: var(--muted);
+    margin-top: 15px;
+    color: var(--ink-muted);
     min-height: 20px;
 }
 
 .output textarea {
     width: 100%;
-    border-radius: 12px;
+    background: var(--bg);
+    color: var(--ink);
     border: 1px solid var(--border);
     padding: 12px;
-    font-family: inherit;
-    font-size: 0.95rem;
+    font-family: "Cairo", "Fira Code", sans-serif;
+    font-size: 1.2rem;
     resize: vertical;
 }
 
+.output textarea:focus {
+    outline: none;
+    border-color: #fff;
+}
+
 .details {
-    margin-top: 32px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
 }
 
 .details ul {
-    padding-left: 18px;
+    padding-left: 20px;
     margin: 12px 0 0;
-    color: var(--muted);
+    color: var(--ink-muted);
 }
 
-.footer {
-    margin-top: 42px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 0.85rem;
+.details li {
+    margin-bottom: 8px;
+}
+
+audio {
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    /* Basic trick to make native HTML5 audio controls look somewhat amber */
+    filter: sepia(100%) hue-rotate(5deg) saturate(300%) contrast(150%);
 }

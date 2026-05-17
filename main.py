@@ -24,10 +24,10 @@ try:
 except ImportError:
     HAS_TORCHAUDIO = False
 
-ACTION = "train_cnn"
-MODELS_TO_EVALUATE = "cnn_lstm"
+ACTION = "evaluate"
+MODELS_TO_EVALUATE = "both"
 WHISPER_MODEL_SIZE = "small"
-EVALUATE_LIMIT = None
+EVALUATE_LIMIT = 200
 DATA_DIR = "data/raw"
 SAVE_DIR = "saved_models"
 RESULTS_DIR = "results"
@@ -114,11 +114,15 @@ def evaluate_cnn_lstm(device):
         print(f"GT: {all_truths[i]}")
         print(f"PR: {all_preds[i]}")
         print("-" * 30)
-    wers = [calculate_wer(t, p) for t, p in zip(all_truths, all_preds)]
-    cers = [calculate_cer(t, p) for t, p in zip(all_truths, all_preds)]
-    avg_wer = sum(wers) / max(len(wers), 1)
-    avg_cer = sum(cers) / max(len(cers), 1)
-    print(f"CNN-LSTM Average WER: {avg_wer:.4f}")
+    valid_idx = [i for i, t in enumerate(all_truths) if len(t.strip()) > 0]
+    filt_truths = [all_truths[i] for i in valid_idx]
+    filt_preds = [all_preds[i] if len(all_preds[i].strip()) > 0 else "-" for i in valid_idx]
+    
+    import jiwer
+    avg_wer = jiwer.wer(filt_truths, filt_preds) if filt_truths else 1.0
+    avg_cer = jiwer.cer(filt_truths, filt_preds) if filt_truths else 1.0
+    
+    print(f"CNN-LSTM Global WER: {avg_wer:.4f}")
     print(f"CNN-LSTM Average CER: {avg_cer:.4f}\n")
     return avg_wer, avg_cer
 
@@ -158,9 +162,15 @@ def evaluate_whisper(device):
         print(f"GT: {references[i]}")
         print(f"PR: {hypotheses[i]}")
         print("-" * 30)
-    whisper_wer = sum(wer_per_sample) / max(len(wer_per_sample), 1)
-    whisper_cer = sum(cer_per_sample) / max(len(cer_per_sample), 1)
-    print(f"Whisper ({WHISPER_MODEL_SIZE}) Average WER: {whisper_wer:.4f}")
+    valid_idx = [i for i, t in enumerate(references) if len(t.strip()) > 0]
+    filt_refs = [references[i] for i in valid_idx]
+    filt_hyps = [hypotheses[i] if len(hypotheses[i].strip()) > 0 else "-" for i in valid_idx]
+    
+    import jiwer
+    whisper_wer = jiwer.wer(filt_refs, filt_hyps) if filt_refs else 1.0
+    whisper_cer = jiwer.cer(filt_refs, filt_hyps) if filt_refs else 1.0
+    
+    print(f"Whisper ({WHISPER_MODEL_SIZE}) Global WER: {whisper_wer:.4f}")
     print(f"Whisper ({WHISPER_MODEL_SIZE}) Average CER: {whisper_cer:.4f}\n")
     os.makedirs(RESULTS_DIR, exist_ok=True)
     csv_path = os.path.join(RESULTS_DIR, "whisper_results.csv")
