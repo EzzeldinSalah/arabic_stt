@@ -29,7 +29,7 @@ except ImportError:
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 RESULTS_PATH = BASE_DIR.parent / "results" / "metrics.json"
-MODEL_NAME = os.getenv("WHISPER_MODEL", "small")
+MODEL_NAME = os.getenv("WHISPER_MODEL", "large")
 DEVICE = os.getenv("WHISPER_DEVICE")
 if not DEVICE:
     if torch.cuda.is_available():
@@ -151,10 +151,7 @@ async def transcribe(file: UploadFile = File(...)):
             without_timestamps=True,
         )
         whisper_text = result["text"].strip()
-        cnn_text = transcribe_cnn(audio_np)
-        
-        combined_text = f"CNN-LSTM:\n{cnn_text}\n\nWhisper ({MODEL_NAME}):\n{whisper_text}"
-        return {"text": combined_text, "model": "CNN-LSTM + Whisper"}
+        return {"text": whisper_text, "model": f"Whisper ({MODEL_NAME})"}
     finally:
         if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)

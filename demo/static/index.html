@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Arabic ASR Studio</title>
-        <link rel="stylesheet" href="/assets/styles.css?v=2" />
+        <link rel="stylesheet" href="/assets/styles.css?v=3" />
     </head>
     <body>
 
@@ -22,7 +22,7 @@
                         <button class="primary" id="scroll-cta">
                             Try the demo
                         </button>
-                        <span class="badge">CNN-LSTM + Whisper baseline</span>
+                        <span class="badge">Whisper (Large) Baseline</span>
                     </div>
                 </div>
 
@@ -45,18 +45,8 @@
                                     <td>--</td>
                                     <td>--</td>
                                     <td>--</td>
-                                </tr>
-                                <tr>
-                                    <td>CNN-LSTM</td>
-                                    <td>--</td>
-                                    <td>--</td>
-                                    <td>--</td>
-                                </tr>
                             </tbody>
                         </table>
-                    </div>
-                    <div class="compare" id="metrics-compare">
-                        Delta WER/CER will appear here.
                     </div>
                 </div>
             </section>
@@ -70,9 +60,10 @@
                     </p>
                     <input type="file" id="file-input" accept="audio/*" />
                     <audio id="audio-preview" controls style="display: none;"></audio>
-                    <button class="primary" id="transcribe-btn">
-                        Transcribe
-                    </button>
+                    <div class="controls-row">
+                        <button class="primary" id="transcribe-btn">Transcribe</button>
+                        <button class="secondary" id="record-btn">Record</button>
+                    </div>
                     <div class="status" id="status"></div>
                 </div>
 
@@ -89,18 +80,9 @@
 
             <section class="details">
                 <div class="card">
-                    <h3>Pipeline</h3>
-                    <ul>
-                        <li>Audio -> log-mel features</li>
-                        <li>CNN stack for local patterns</li>
-                        <li>BiLSTM for sequence modeling</li>
-                        <li>CTC decoding for alignment</li>
-                    </ul>
-                </div>
-                <div class="card">
                     <h3>Benchmark</h3>
                     <ul>
-                        <li>Whisper small for baseline accuracy</li>
+                        <li>Whisper (Large) evaluated for baseline accuracy</li>
                         <li>WER and CER tracked per test run</li>
                         <li>Metrics sourced from results/metrics.json</li>
                     </ul>
@@ -108,6 +90,6 @@
             </section>
         </main>
 
-        <script src="/assets/app.js?v=2"></script>
+        <script src="/assets/app.js?v=4"></script>
     </body>
 </html>

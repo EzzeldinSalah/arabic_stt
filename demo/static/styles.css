@@ -1,12 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Cairo:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cairo:wght@400;600;700&display=swap");
 
 :root {
-    --bg: #0a0a0a;
-    --ink: #ffb000;
-    --ink-muted: rgba(255, 176, 0, 0.7);
-    --border: #ffb000;
-    --card: #111111;
-    --hover: #221800;
+    --bg: #0f1115;
+    --card: #181a1f;
+    --border: #2e323b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #ffffff;
+    --accent-hover: #e2e8f0;
+    --danger: #ef4444;
 }
 
 * {
@@ -15,42 +17,26 @@
 
 body {
     margin: 0;
-    font-family: "Fira Code", "Cairo", monospace, sans-serif;
-    color: var(--ink);
+    font-family: "Inter", "Cairo", sans-serif;
+    color: var(--text-primary);
     background: var(--bg);
     min-height: 100vh;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.6;
-}
-
-/* Scanline effect */
-body::after {
-    content: " ";
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    z-index: 2;
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none;
+    -webkit-font-smoothing: antialiased;
 }
 
 .page {
-    position: relative;
-    z-index: 1;
     max-width: 900px;
     margin: 0 auto;
-    padding: 40px 20px 72px;
+    padding: 60px 20px 80px;
 }
 
 h1, h2, h3 {
-    text-transform: uppercase;
     font-weight: 600;
-    letter-spacing: 1px;
+    letter-spacing: -0.02em;
     margin-top: 0;
+    color: var(--text-primary);
 }
 
 .hero {
@@ -58,20 +44,18 @@ h1, h2, h3 {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 28px;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
 }
 
 .hero-copy h1 {
-    font-size: 2rem;
-    margin: 0 0 12px;
-    border-bottom: 2px solid var(--border);
-    display: inline-block;
-    padding-bottom: 5px;
+    font-size: 2.5rem;
+    margin: 0 0 16px;
 }
 
 .subtitle {
-    color: var(--ink-muted);
-    margin-bottom: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 1.1rem;
 }
 
 .hero-actions {
@@ -82,23 +66,23 @@ h1, h2, h3 {
 }
 
 button {
-    font-family: "Fira Code", monospace;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .primary {
-    background: var(--ink);
-    color: var(--bg);
-    border: 2px solid var(--ink);
-    padding: 10px 20px;
-    font-weight: 600;
-    text-transform: uppercase;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.1s ease;
+    transition: all 0.2s ease;
 }
 
 .primary:hover {
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--accent-hover);
 }
 
 .primary:disabled {
@@ -106,26 +90,53 @@ button {
     cursor: not-allowed;
 }
 
+.secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.secondary:hover {
+    border-color: var(--text-secondary);
+}
+
+.recording {
+    border-color: var(--danger) !important;
+    color: var(--danger) !important;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
 .badge {
-    color: var(--ink-muted);
-    border: 1px dashed var(--ink-muted);
-    padding: 4px 8px;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
     font-size: 0.85rem;
-    text-transform: uppercase;
 }
 
 .card {
     background: var(--card);
     border: 1px solid var(--border);
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .meta {
-    color: var(--ink-muted);
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
 }
 
 .table-wrap {
@@ -139,81 +150,92 @@ table {
 
 th, td {
     text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid var(--ink-muted);
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
 }
 
 th {
-    color: var(--ink);
-    text-transform: uppercase;
-}
-
-.compare {
-    margin-top: 12px;
-    color: var(--ink-muted);
-    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .demo {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
+    gap: 24px;
+}
+
+.controls-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .upload input[type="file"] {
-    margin: 10px 0 16px;
+    margin: 12px 0 20px;
     display: block;
     width: 100%;
-    border: 1px dashed var(--ink);
-    padding: 10px;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Fira Code", monospace;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-primary);
     cursor: pointer;
+    font-size: 0.9rem;
 }
 
 .upload input[type="file"]::file-selector-button {
-    background: var(--ink);
-    color: var(--bg);
+    background: var(--border);
+    color: var(--text-primary);
     border: none;
-    padding: 5px 10px;
+    border-radius: 4px;
+    padding: 6px 12px;
     font-family: inherit;
     cursor: pointer;
-    margin-right: 10px;
+    margin-right: 12px;
+    transition: background 0.2s;
+}
+
+.upload input[type="file"]::file-selector-button:hover {
+    background: var(--text-secondary);
+    color: #000;
 }
 
 .status {
-    margin-top: 15px;
-    color: var(--ink-muted);
-    min-height: 20px;
+    margin-top: 16px;
+    color: var(--text-secondary);
+    min-height: 24px;
+    font-size: 0.9rem;
 }
 
 .output textarea {
     width: 100%;
-    background: var(--bg);
-    color: var(--ink);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
     border: 1px solid var(--border);
-    padding: 12px;
-    font-family: "Cairo", "Fira Code", sans-serif;
-    font-size: 1.2rem;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: "Cairo", "Inter", sans-serif;
+    font-size: 1.1rem;
     resize: vertical;
+    transition: border-color 0.2s;
 }
 
 .output textarea:focus {
     outline: none;
-    border-color: #fff;
+    border-color: var(--text-secondary);
 }
 
 .details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
+    gap: 24px;
 }
 
 .details ul {
     padding-left: 20px;
     margin: 12px 0 0;
-    color: var(--ink-muted);
+    color: var(--text-secondary);
 }
 
 .details li {
@@ -224,6 +246,7 @@ audio {
     width: 100%;
     margin-top: 5px;
     margin-bottom: 15px;
-    /* Basic trick to make native HTML5 audio controls look somewhat amber */
-    filter: sepia(100%) hue-rotate(5deg) saturate(300%) contrast(150%);
+    border-radius: 8px;
+    /* Default audio player with some opacity */
+    opacity: 0.9;
 }
