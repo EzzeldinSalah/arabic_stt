@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Arabic ASR Studio</title>
+        <link rel="stylesheet" href="/assets/styles.css" />
+    </head>
+    <body>
+        <div class="bg-orb orb-1"></div>
+        <div class="bg-orb orb-2"></div>
+
+        <main class="page">
+            <section class="hero">
+                <div class="hero-copy">
+                    <h1>Arabic Speech Recognition</h1>
+                    <p class="subtitle">
+                        A lightweight research demo that compares a compact
+                        CNN-LSTM model with a Whisper baseline and exposes clean
+                        transcription results.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="primary" id="scroll-cta">
+                            Try the demo
+                        </button>
+                        <span class="badge">CNN-LSTM + Whisper baseline</span>
+                    </div>
+                </div>
+
+                <div class="card metrics">
+                    <h2>Accuracy</h2>
+                    <div class="meta" id="metrics-meta">Loading metrics...</div>
+                    <div class="table-wrap">
+                        <table id="metrics-table">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>WER</th>
+                                    <th>CER</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Whisper</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                </tr>
+                                <tr>
+                                    <td>CNN-LSTM</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="compare" id="metrics-compare">
+                        Delta WER/CER will appear here.
+                    </div>
+                </div>
+            </section>
+
+            <section class="demo" id="demo">
+                <div class="card upload">
+                    <h2>Live transcription</h2>
+                    <p>
+                        Upload Arabic audio (wav, mp3, flac) to generate a
+                        transcript.
+                    </p>
+                    <input type="file" id="file-input" accept="audio/*" />
+                    <button class="primary" id="transcribe-btn">
+                        Transcribe
+                    </button>
+                    <div class="status" id="status"></div>
+                </div>
+
+                <div class="card output">
+                    <h2>Transcript</h2>
+                    <textarea
+                        id="output"
+                        rows="7"
+                        placeholder="Transcript appears here"
+                        readonly
+                    ></textarea>
+                </div>
+            </section>
+
+            <section class="details">
+                <div class="card">
+                    <h3>Pipeline</h3>
+                    <ul>
+                        <li>Audio -> log-mel features</li>
+                        <li>CNN stack for local patterns</li>
+                        <li>BiLSTM for sequence modeling</li>
+                        <li>CTC decoding for alignment</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Benchmark</h3>
+                    <ul>
+                        <li>Whisper medium for baseline accuracy</li>
+                        <li>WER and CER tracked per test run</li>
+                        <li>Metrics sourced from results/metrics.json</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <script src="/assets/app.js"></script>
+    </body>
+</html>

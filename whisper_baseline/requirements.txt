@@ -1,0 +1,7 @@
+openai-whisper
+torch
+jiwer
+miniaudio
+torchaudio
+numpy
+pandas
