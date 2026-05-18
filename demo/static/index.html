@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Arabic ASR Studio</title>
-        <link rel="stylesheet" href="/assets/styles.css?v=3" />
+        <link rel="stylesheet" href="/assets/styles.css?v=6" />
     </head>
     <body>
 
@@ -61,35 +61,45 @@
                     <input type="file" id="file-input" accept="audio/*" />
                     <audio id="audio-preview" controls style="display: none;"></audio>
                     <div class="controls-row">
-                        <button class="primary" id="transcribe-btn">Transcribe</button>
-                        <button class="secondary" id="record-btn">Record</button>
-                    </div>
-                    <div class="status" id="status"></div>
+                    <button class="primary" id="transcribe-btn">Transcribe</button>
+                    <button class="secondary" id="record-btn">Record</button>
+                </div>
+                <div style="margin-top: 15px; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="mamba-toggle" style="width: 16px; height: 16px;">
+                    <label for="mamba-toggle" style="font-size: 0.9rem; color: var(--text-secondary);">⚡ Enable Mamba English Analysis</label>
+                </div>
+                <div id="status" class="status">Ready</div>
                 </div>
 
                 <div class="card output">
                     <h2>Transcript</h2>
-                    <textarea
-                        id="output"
-                        rows="7"
-                        placeholder="Transcript appears here"
-                        readonly
-                    ></textarea>
+                    <div class="output">
+                        <textarea id="output" rows="4" placeholder="Transcript will appear here..." readonly></textarea>
+                    </div>
+                    <div class="output" style="margin-top: 15px;">
+                        <textarea id="summary-output" rows="3" placeholder="Arabic T5 Summary will appear here..." readonly></textarea>
+                    </div>
+                    <div class="output" style="margin-top: 15px;">
+                        <textarea id="mamba-output" rows="3" placeholder="Mamba English Analysis will appear here..." readonly></textarea>
+                    </div>
                 </div>
             </section>
 
             <section class="details">
-                <div class="card">
-                    <h3>Benchmark</h3>
-                    <ul>
-                        <li>Whisper (Large) evaluated for baseline accuracy</li>
-                        <li>WER and CER tracked per test run</li>
-                        <li>Metrics sourced from results/metrics.json</li>
-                    </ul>
+                <div class="card" style="margin-bottom: 0;">
+                    <h3>History & Search</h3>
+                    <div class="controls-row" style="margin-top: 10px;">
+                        <input type="text" id="search-input" placeholder="Search past transcripts or summaries..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.02); color: var(--text-primary); font-family: inherit;">
+                        <button class="secondary" id="search-btn">Search</button>
+                    </div>
+                    <div id="search-results" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; max-height: 400px; overflow-y: auto;">
+                        <!-- Results will populate here -->
+                        <div class="status">No recent history.</div>
+                    </div>
                 </div>
             </section>
         </main>
 
-        <script src="/assets/app.js?v=4"></script>
+        <script src="/assets/app.js?v=6"></script>
     </body>
 </html>

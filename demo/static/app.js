@@ -6,8 +6,12 @@ const transcribeBtn = document.getElementById("transcribe-btn");
 const recordBtn = document.getElementById("record-btn");
 const statusEl = document.getElementById("status");
 const outputEl = document.getElementById("output");
+const summaryOutputEl = document.getElementById("summary-output");
 const scrollBtn = document.getElementById("scroll-cta");
 const audioPreview = document.getElementById("audio-preview");
+const searchInput = document.getElementById("search-input");
+const searchBtn = document.getElementById("search-btn");
+const searchResults = document.getElementById("search-results");
 
 const fmt = (value) => value === null || value === undefined ? "N/A" : value.toFixed(4);
 
@@ -101,15 +105,22 @@ async function transcribe() {
         return;
     }
 
-    statusEl.textContent = "Transcribing (this may take a moment if using large model)...";
+    statusEl.textContent = "Transcribing & Summarizing (this may take a moment)...";
     transcribeBtn.disabled = true;
     outputEl.value = "";
+    summaryOutputEl.value = "";
 
     const formData = new FormData();
     if (wavBlob) {
         formData.append("file", wavBlob, "recording.wav");
-    } else {
+    } else if (recordedBlob) {
+        formData.append("file", recordedBlob, "recording.webm");
+    } else if (fileInput.files.length > 0) {
         formData.append("file", fileInput.files[0]);
+    } else {
+        statusEl.textContent = "Please select an audio file or record audio.";
+        transcribeBtn.disabled = false;
+        return;
     }
 
     try {
@@ -125,11 +136,40 @@ async function transcribe() {
         }
 
         outputEl.value = data.text || "";
+        summaryOutputEl.value = data.summary || "No summary generated.";
         statusEl.textContent = "Done.";
+        loadHistory();
     } catch (err) {
         statusEl.textContent = "Transcription failed.";
     } finally {
         transcribeBtn.disabled = false;
+    }
+}
+
+async function loadHistory(query = "") {
+    try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        
+        searchResults.innerHTML = "";
+        
+        if (!data.results || data.results.length === 0) {
+            searchResults.innerHTML = `<div class="status">No results found.</div>`;
+            return;
+        }
+        
+        data.results.forEach(record => {
+            const date = new Date(record.timestamp).toLocaleString();
+            searchResults.innerHTML += `
+                <div style="border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: rgba(0,0,0,0.2);">
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">${date}</div>
+                    <div style="margin-bottom: 8px; font-family: 'Cairo', sans-serif;"><strong>Transcript:</strong> ${record.text}</div>
+                    <div style="font-family: 'Cairo', sans-serif; color: var(--text-secondary);"><strong>Summary:</strong> ${record.summary || 'N/A'}</div>
+                </div>
+            `;
+        });
+    } catch (err) {
+        searchResults.innerHTML = `<div class="status" style="color: var(--danger);">Failed to load history.</div>`;
     }
 }
 
@@ -144,6 +184,7 @@ async function toggleRecord() {
             };
             
             mediaRecorder.onstop = async () => {
+                transcribeBtn.disabled = true;
                 statusEl.textContent = "Processing audio...";
                 recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
                 try {
@@ -156,6 +197,8 @@ async function toggleRecord() {
                 } catch (err) {
                     console.error("Audio processing failed:", err);
                     statusEl.textContent = "Audio processing failed.";
+                } finally {
+                    transcribeBtn.disabled = false;
                 }
                 
                 // Stop all tracks to release mic
@@ -208,4 +251,10 @@ if (fileInput) {
 
 transcribeBtn.addEventListener("click", transcribe);
 if (recordBtn) recordBtn.addEventListener("click", toggleRecord);
+if (searchBtn) searchBtn.addEventListener("click", () => loadHistory(searchInput.value));
+if (searchInput) searchInput.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") loadHistory(searchInput.value);
+});
+
 loadMetrics();
+loadHistory();

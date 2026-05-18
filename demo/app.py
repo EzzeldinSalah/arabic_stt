@@ -5,14 +5,17 @@ from pathlib import Path
 import numpy as np
 import torch
 import whisper
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.staticfiles import StaticFiles
-import uvicorn
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import sys
 
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.append(str(BASE_DIR.parent))
+
+from demo.db import init_db, save_record, search_records, get_recent_records
 
 from cnn_lstm.model import CNNLSTM, LegacyASRModel
 from cnn_lstm.utils import CharacterEncoder, greedy_decoder
@@ -38,17 +41,40 @@ if not DEVICE:
         DEVICE = "mps"
     else:
         DEVICE = "cpu"
-_model = None
+
+print(f"Using device: {DEVICE}")
+
+# Initialize DB
+init_db()
+
+# Load Whisper
+print(f"Loading Whisper model '{MODEL_NAME}' on {DEVICE}...")
+whisper_model = whisper.load_model(MODEL_NAME, device=DEVICE)
+
+# Load Summarization Model
+print(f"Loading Arabic Summarizer (T5) on {DEVICE}...")
+try:
+    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    sum_tokenizer = AutoTokenizer.from_pretrained("malmarjeh/t5-arabic-text-summarization")
+    sum_model = AutoModelForSeq2SeqLM.from_pretrained("malmarjeh/t5-arabic-text-summarization").to(DEVICE)
+    summarizer_loaded = True
+except Exception as e:
+    print(f"Warning: Failed to load T5 summarizer: {e}")
+    summarizer_loaded = False
+
+# Load English Summarizer (Mamba)
+print(f"Loading Mamba Summarizer (English) on {DEVICE}...")
+try:
+    from transformers import pipeline
+    mamba_summarizer = pipeline("text-generation", model="state-spaces/mamba-130m-hf", device=DEVICE)
+except Exception as e:
+    print(f"Warning: Failed to load Mamba summarizer: {e}")
+    mamba_summarizer = None
+
 _cnn_model = None
 _char_encoder = None
 _mel_transform = None
 _db_transform = None
-
-def _get_model():
-    global _model
-    if _model is None:
-        _model = whisper.load_model(MODEL_NAME, device=DEVICE)
-    return _model
 
 def _get_cnn_model():
     global _cnn_model, _char_encoder, _mel_transform, _db_transform
@@ -129,7 +155,7 @@ def metrics():
             {"status": "error", "message": str(exc)}, status_code=500
         )
 @app.post("/api/transcribe")
-async def transcribe(file: UploadFile = File(...)):
+async def transcribe(file: UploadFile = File(...), mamba_analysis: str = Form("false")):
     if not file.filename:
         return JSONResponse({"error": "No file provided."}, status_code=400)
     suffix = Path(file.filename).suffix or ".wav"
@@ -143,18 +169,75 @@ async def transcribe(file: UploadFile = File(...)):
             return JSONResponse(
                 {"error": f"Audio load failed: {error}"}, status_code=400
             )
-        result = _get_model().transcribe(
+        result = whisper_model.transcribe(
             audio_np,
+            fp16=False,
             language="ar",
             task="transcribe",
-            fp16=False,
             without_timestamps=True,
         )
         whisper_text = result["text"].strip()
-        return {"text": whisper_text, "model": f"Whisper ({MODEL_NAME})"}
+        
+        summary_text = ""
+        if summarizer_loaded and whisper_text:
+            try:
+                # Calculate max length based on input to avoid errors on short text
+                input_length = len(whisper_text.split())
+                max_len = min(128, max(10, input_length))
+                
+                inputs = sum_tokenizer(whisper_text, return_tensors="pt", max_length=512, truncation=True).to(DEVICE)
+                outputs = sum_model.generate(**inputs, max_length=max_len, min_length=5, do_sample=False)
+                summary_text = sum_tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+            except Exception as e:
+                print(f"Summarization error: {e}")
+                summary_text = "Failed to generate summary."
+                
+        english_analysis = ""
+        is_mamba_requested = (mamba_analysis.lower() == "true")
+        if is_mamba_requested and mamba_summarizer:
+            try:
+                # 1. Translate Arabic to English using Whisper
+                translation_result = whisper_model.transcribe(
+                    audio_np,
+                    fp16=False,
+                    task="translate",
+                    without_timestamps=True,
+                )
+                english_text = translation_result["text"].strip()
+                
+                # 2. Analyze using Mamba
+                prompt = f"Analyze and summarize the following text:\n\n{english_text}\n\nAnalysis:\n"
+                gen = mamba_summarizer(prompt, max_new_tokens=100, do_sample=True, temperature=0.7)
+                generated_text = gen[0]["generated_text"]
+                
+                if "Analysis:\n" in generated_text:
+                    english_analysis = generated_text.split("Analysis:\n")[-1].strip()
+                else:
+                    english_analysis = generated_text[len(prompt):].strip()
+            except Exception as e:
+                print(f"Mamba analysis error: {e}")
+                english_analysis = "Failed to generate English analysis."
+        
+        # Save to DB
+        save_record(whisper_text, summary_text, english_analysis)
+        
+        return {
+            "text": whisper_text, 
+            "summary": summary_text,
+            "english_analysis": english_analysis,
+            "model": f"Whisper ({MODEL_NAME}) + Arabic T5" + (" + Mamba" if is_mamba_requested else "")
+        }
     finally:
         if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)
+@app.get("/api/search")
+async def search_history(q: str = ""):
+    if q.strip():
+        results = search_records(q)
+    else:
+        results = get_recent_records()
+    return {"results": results}
+
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", "7860"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    import uvicorn
+    uvicorn.run("demo.app:app", host="0.0.0.0", port=8000, reload=True)
