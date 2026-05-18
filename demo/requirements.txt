@@ -6,3 +6,7 @@ torch
 miniaudio
 torchaudio
 numpy
+transformers
+accelerate
+sentencepiece
+protobuf

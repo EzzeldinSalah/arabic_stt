@@ -1,6 +1,5 @@
 const metricsMeta = document.getElementById("metrics-meta");
 const metricsTable = document.querySelector("#metrics-table tbody");
-const modelChip = document.getElementById("model-chip");
 const fileInput = document.getElementById("file-input");
 const transcribeBtn = document.getElementById("transcribe-btn");
 const recordBtn = document.getElementById("record-btn");
@@ -12,6 +11,8 @@ const audioPreview = document.getElementById("audio-preview");
 const searchInput = document.getElementById("search-input");
 const searchBtn = document.getElementById("search-btn");
 const searchResults = document.getElementById("search-results");
+const mambaToggle = document.getElementById("mamba-toggle");
+const mambaOutputEl = document.getElementById("mamba-output");
 
 const fmt = (value) => value === null || value === undefined ? "N/A" : value.toFixed(4);
 
@@ -109,6 +110,7 @@ async function transcribe() {
     transcribeBtn.disabled = true;
     outputEl.value = "";
     summaryOutputEl.value = "";
+    if (mambaOutputEl) mambaOutputEl.value = "";
 
     const formData = new FormData();
     if (wavBlob) {
@@ -121,6 +123,10 @@ async function transcribe() {
         statusEl.textContent = "Please select an audio file or record audio.";
         transcribeBtn.disabled = false;
         return;
+    }
+
+    if (mambaToggle && mambaToggle.checked) {
+        formData.append("mamba_analysis", "true");
     }
 
     try {
@@ -137,6 +143,7 @@ async function transcribe() {
 
         outputEl.value = data.text || "";
         summaryOutputEl.value = data.summary || "No summary generated.";
+        if (mambaOutputEl) mambaOutputEl.value = data.mamba_story || "";
         statusEl.textContent = "Done.";
         loadHistory();
     } catch (err) {

@@ -34,6 +34,7 @@ logs/
 
 .cache/
 
+*.csv
 !results/metrics.json
 results/*.db
 

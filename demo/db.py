@@ -8,10 +8,8 @@ def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # Safely migrate by dropping for development purposes
-    c.execute("DROP TABLE IF EXISTS records")
     c.execute('''
-        CREATE TABLE records (
+        CREATE TABLE IF NOT EXISTS records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
             summary TEXT,

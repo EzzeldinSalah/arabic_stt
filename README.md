@@ -1,52 +1,68 @@
 # Arabic Audio Understanding and Retrieval System
 
-A compact Arabic ASR project with two approaches:
+An intelligent Arabic speech-to-text pipeline with AI summarization and search.
 
-- CNN-LSTM (trainable model)
-- Whisper (pretrained baseline)
+**Pipeline:** Arabic Audio → Whisper Transcription → T5 Arabic Summary → Mamba Storytelling (English)
+
+## Features
+
+- **Whisper (Large)** Arabic speech recognition
+- **Arabic T5** text summarization (`malmarjeh/t5-arabic-text-summarization`)
+- **Mamba SSM** English storytelling via `state-spaces/mamba-130m-hf`
+- **Browser recording** with in-browser WebM→WAV conversion
+- **Search & history** powered by local SQLite
 
 ## Structure
 
-- cnn_lstm/ - training, evaluation, inference
-- whisper_baseline/ - Whisper evaluation + single-file inference
-- demo/ - landing-page demo + minimal API
-- report/ - results summary
-- data/ - Common Voice Arabic splits
-- results/ - metrics.json and per-sample outputs
+```
+cnn_lstm/        CNN-LSTM model architecture, training, and evaluation
+whisper_baseline/  Whisper evaluation notebooks
+demo/            Web app (FastAPI + vanilla JS)
+results/         Evaluation metrics
+data/            Common Voice Arabic splits (gitignored)
+```
 
-## Quick start (local)
+## Quick Start
 
-### 1) Train CNN-LSTM
+### 1. Install dependencies
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r demo/requirements.txt
+```
+
+### 2. Run the demo
+
+```bash
+python3 demo/app.py
+```
+
+Open **http://localhost:8000**
+
+### 3. Train CNN-LSTM (optional)
 
 ```bash
 pip install -r cnn_lstm/requirements.txt
-python -m cnn_lstm.train --data-dir data/raw --epochs 20 --batch-size 32 --limit 10000
+python3 main.py
 ```
 
-### 2) Evaluate Whisper + CNN-LSTM
+### 4. Evaluate models (optional)
 
 ```bash
 pip install -r whisper_baseline/requirements.txt
-python whisper_baseline/whisper_eval.py
+python3 main.py
 ```
 
-This generates results/metrics.json for the demo.
+## Environment Variables
 
-### 3) Run the demo
-
-```bash
-pip install -r demo/requirements.txt
-python demo/app.py
-```
-
-Open http://localhost:7860
-
-## Environment overrides
-
-- WHISPER_MODEL: default "medium"
-- WHISPER_DEVICE: "cuda" | "mps" | "cpu"
-- PORT: demo server port (default 7860)
+| Variable           | Default     | Description                   |
+| ------------------ | ----------- | ----------------------------- |
+| `WHISPER_MODEL`  | `large`   | Whisper model size            |
+| `WHISPER_DEVICE` | auto-detect | `cuda`, `mps`, or `cpu` |
 
 ## Notes
 
-Whisper is a baseline (no training). The CNN-LSTM is the trainable model.
+- The Whisper `large` model requires ~5GB RAM. Use `medium` or `small` if constrained.
+- Mamba storytelling translates Arabic→English via Whisper, then retells it creatively.
+- The T5 summarizer generates concise Arabic summaries of transcriptions.

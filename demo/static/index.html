@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Arabic ASR Studio</title>
-        <link rel="stylesheet" href="/assets/styles.css?v=6" />
+        <link rel="stylesheet" href="/assets/styles.css?v=9" />
     </head>
     <body>
 
@@ -14,9 +14,8 @@
                 <div class="hero-copy">
                     <h1>Arabic Speech Recognition</h1>
                     <p class="subtitle">
-                        A lightweight research demo that compares a compact
-                        CNN-LSTM model with a Whisper baseline and exposes clean
-                        transcription results.
+                        Upload or record Arabic audio to transcribe, summarize
+                        with T5, and optionally analyze in English via Mamba.
                     </p>
                     <div class="hero-actions">
                         <button class="primary" id="scroll-cta">
@@ -80,7 +79,7 @@
                         <textarea id="summary-output" rows="3" placeholder="Arabic T5 Summary will appear here..." readonly></textarea>
                     </div>
                     <div class="output" style="margin-top: 15px;">
-                        <textarea id="mamba-output" rows="3" placeholder="Mamba English Analysis will appear here..." readonly></textarea>
+                        <textarea id="mamba-output" rows="3" placeholder="Mamba Storytelling will appear here..." readonly></textarea>
                     </div>
                 </div>
             </section>
@@ -100,6 +99,6 @@
             </section>
         </main>
 
-        <script src="/assets/app.js?v=6"></script>
+        <script src="/assets/app.js?v=9"></script>
     </body>
 </html>
